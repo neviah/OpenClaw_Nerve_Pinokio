@@ -14,7 +14,7 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
-          "openclaw gateway start || openclaw gateway"
+          "{{platform === 'win32' ? 'openclaw gateway' : 'openclaw gateway start || openclaw gateway'}}"
         ],
         on: [
           {
