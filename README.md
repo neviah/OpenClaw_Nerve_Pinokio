@@ -7,6 +7,7 @@ This launcher installs and runs OpenClaw (gateway) and Nerve (web UI) in sequenc
 3. Clone and build Nerve in `app/nerve`.
 4. Start OpenClaw first, then start Nerve.
 5. Auto-detect local model server defaults in this order: LM Studio, then Ollama.
+6. Ensure OpenClaw gateway token is present and generate Nerve `.env` automatically.
 
 No interactive onboarding prompts are required during install.
 
@@ -22,6 +23,8 @@ If neither local server is running, config stays empty and users can set provide
 - `install.js`: installs OpenClaw and Nerve.
 - `start.js`: starts OpenClaw, waits for health, writes Nerve `.env`, then starts Nerve.
 - `configure-provider-defaults.js`: detects LM Studio/Ollama and writes first-run model defaults only when model config is still unset.
+- `prepare-nerve-env.js`: writes Nerve `.env` from OpenClaw config and ensures a gateway token exists.
+- `wait-openclaw-ready.js`: waits for OpenClaw health endpoint to return HTTP 200 before launching Nerve.
 - `update.js`: updates launcher repo, OpenClaw, and Nerve upstream.
 - `reset.js`: removes `app/nerve`.
 - `pinokio.js`: sidebar menu and run-state UI.

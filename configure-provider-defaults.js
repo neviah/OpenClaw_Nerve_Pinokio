@@ -2,6 +2,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const http = require("http");
+const crypto = require("crypto");
 
 const openclawDir = path.join(os.homedir(), ".openclaw");
 const configPath = path.join(openclawDir, "openclaw.json");
@@ -41,7 +42,7 @@ async function detectProvider() {
       source: "LMSTUDIO",
       baseUrl: "http://127.0.0.1:1234/v1",
       apiKey: "lm-studio",
-      model: firstModel ? `lmstudio/${firstModel.id}` : "lmstudio/local-model"
+      modelId: firstModel ? firstModel.id : "local-model"
     };
   }
 
@@ -53,7 +54,7 @@ async function detectProvider() {
       source: "OLLAMA",
       baseUrl: "http://127.0.0.1:11434/v1",
       apiKey: "ollama",
-      model: firstModel ? `ollama/${firstModel.name}` : "ollama/llama3.2"
+      modelId: firstModel ? firstModel.name : "llama3.2"
     };
   }
 
@@ -72,10 +73,40 @@ function hasExistingModelConfig(cfg) {
   return hasModel || hasProviders;
 }
 
+function ensureGatewayToken(cfg) {
+  if (!cfg.gateway) cfg.gateway = {};
+  if (!cfg.gateway.auth) cfg.gateway.auth = {};
+  if (!cfg.gateway.auth.mode) cfg.gateway.auth.mode = "token";
+  if (!cfg.gateway.auth.token || typeof cfg.gateway.auth.token !== "string") {
+    cfg.gateway.auth.token = `ocn_${crypto.randomBytes(24).toString("hex")}`;
+    return true;
+  }
+  return false;
+}
+
+function buildModelEntry(modelId) {
+  return {
+    id: modelId,
+    name: modelId,
+    reasoning: false,
+    input: ["text"],
+    cost: {
+      input: 0,
+      output: 0,
+      cacheRead: 0,
+      cacheWrite: 0
+    },
+    contextWindow: 131072,
+    contextTokens: 120000,
+    maxTokens: 8192
+  };
+}
+
 (async () => {
   fs.mkdirSync(openclawDir, { recursive: true });
 
   let cfg = {};
+  let changed = false;
   if (fs.existsSync(configPath)) {
     const raw = fs.readFileSync(configPath, "utf8").trim();
     if (raw) {
@@ -88,13 +119,25 @@ function hasExistingModelConfig(cfg) {
     }
   }
 
+  if (ensureGatewayToken(cfg)) {
+    changed = true;
+  }
+
   if (hasExistingModelConfig(cfg)) {
+    if (changed) {
+      fs.writeFileSync(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
+      console.log("GATEWAY_TOKEN_SET");
+    }
     console.log("EXISTING_MODEL_CONFIG");
     process.exit(0);
   }
 
   const provider = await detectProvider();
   if (!provider) {
+    if (changed) {
+      fs.writeFileSync(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
+      console.log("GATEWAY_TOKEN_SET");
+    }
     console.log("NO_LOCAL_PROVIDER");
     process.exit(0);
   }
@@ -105,12 +148,13 @@ function hasExistingModelConfig(cfg) {
     baseUrl: provider.baseUrl,
     api: "openai-completions",
     apiKey: provider.apiKey,
-    injectNumCtxForOpenAICompat: true
+    injectNumCtxForOpenAICompat: true,
+    models: [buildModelEntry(provider.modelId)]
   };
 
   if (!cfg.agents) cfg.agents = {};
   if (!cfg.agents.defaults) cfg.agents.defaults = {};
-  cfg.agents.defaults.model = provider.model;
+  cfg.agents.defaults.model = `${provider.id}/${provider.modelId}`;
 
   fs.writeFileSync(configPath, `${JSON.stringify(cfg, null, 2)}\n`);
   console.log(`PROVIDER_DEFAULT_SET:${provider.source}`);

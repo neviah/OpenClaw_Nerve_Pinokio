@@ -4,17 +4,8 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
-          "mkdir -p app",
+          "node -e \"require('fs').mkdirSync('app',{recursive:true})\"",
           "npm install -g openclaw@latest"
-        ]
-      }
-    },
-    {
-      method: "shell.run",
-      params: {
-        message: [
-          "mkdir -p ~/.openclaw",
-          "if [ ! -f ~/.openclaw/openclaw.json ]; then printf '{}\\n' > ~/.openclaw/openclaw.json; fi"
         ]
       }
     },
