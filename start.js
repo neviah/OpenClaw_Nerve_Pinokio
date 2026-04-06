@@ -14,7 +14,7 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
-          "openclaw gateway start"
+          "openclaw gateway start || openclaw gateway"
         ],
         on: [
           {
