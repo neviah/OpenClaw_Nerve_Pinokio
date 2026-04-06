@@ -2,6 +2,14 @@ module.exports = {
   daemon: true,
   run: [
     {
+      method: "shell.run",
+      params: {
+        message: [
+          "node configure-provider-defaults.js"
+        ]
+      }
+    },
+    {
       id: "start_openclaw",
       method: "shell.run",
       params: {

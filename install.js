@@ -19,6 +19,14 @@ module.exports = {
       }
     },
     {
+      method: "shell.run",
+      params: {
+        message: [
+          "node configure-provider-defaults.js"
+        ]
+      }
+    },
+    {
       when: "{{!exists('app/nerve/.git')}}",
       method: "shell.run",
       params: {
