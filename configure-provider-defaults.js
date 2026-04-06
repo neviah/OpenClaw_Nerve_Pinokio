@@ -84,6 +84,28 @@ function ensureGatewayToken(cfg) {
   return false;
 }
 
+function ensureGatewayRuntimeDefaults(cfg) {
+  if (!cfg.gateway) cfg.gateway = {};
+  let changed = false;
+
+  if (!cfg.gateway.mode || typeof cfg.gateway.mode !== "string") {
+    cfg.gateway.mode = "local";
+    changed = true;
+  }
+
+  if (!cfg.gateway.bind || typeof cfg.gateway.bind !== "string") {
+    cfg.gateway.bind = "loopback";
+    changed = true;
+  }
+
+  if (!cfg.gateway.port || typeof cfg.gateway.port !== "number") {
+    cfg.gateway.port = 18789;
+    changed = true;
+  }
+
+  return changed;
+}
+
 function buildModelEntry(modelId) {
   return {
     id: modelId,
@@ -150,6 +172,11 @@ function repairKnownProviderShapes(cfg) {
 
   if (ensureGatewayToken(cfg)) {
     changed = true;
+  }
+
+  if (ensureGatewayRuntimeDefaults(cfg)) {
+    changed = true;
+    console.log("GATEWAY_DEFAULTS_SET");
   }
 
   if (repairKnownProviderShapes(cfg)) {

@@ -45,7 +45,17 @@ module.exports = {
       }
     },
     {
+      id: "openclaw_failed",
+      when: "{{!(input.event && input.event[0] === 'OPENCLAW_READY')}}",
+      method: "notify",
+      params: {
+        html: "<b>OpenClaw failed to start</b><br>Check the Start terminal logs for gateway errors before launching Nerve.",
+        type: "warning"
+      }
+    },
+    {
       id: "start_nerve",
+      when: "{{input.event && input.event[0] === 'OPENCLAW_READY'}}",
       method: "shell.run",
       params: {
         path: "app/nerve",
@@ -61,6 +71,7 @@ module.exports = {
       }
     },
     {
+      when: "{{input.event && input.event[1]}}",
       method: "local.set",
       params: {
         url: "{{input.event[1]}}"
