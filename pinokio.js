@@ -9,7 +9,8 @@ module.exports = {
       install: info.running("install.js"),
       start: info.running("start.js"),
       update: info.running("update.js"),
-      reset: info.running("reset.js")
+      reset: info.running("reset.js"),
+      providerSetup: info.running("provider-setup.js")
     }
 
     if (running.install) {
@@ -22,8 +23,9 @@ module.exports = {
     } else if (installed) {
       if (running.start) {
         let local = info.local("start.js")
+        let providerLocal = info.local("provider-setup.js")
         if (local && local.url) {
-          return [{
+          const items = [{
             default: true,
             icon: "fa-solid fa-rocket",
             text: "Open Nerve",
@@ -37,12 +39,61 @@ module.exports = {
             text: "Terminal",
             href: "start.js"
           }]
+
+          if (providerLocal && providerLocal.url) {
+            items.push({
+              icon: "fa-solid fa-sliders",
+              text: "Provider Setup",
+              href: providerLocal.url
+            })
+            items.push({
+              icon: "fa-solid fa-cloud",
+              text: "Provider Setup (OpenRouter preset)",
+              href: providerLocal.url + "?provider=openrouter"
+            })
+          } else {
+            items.push({
+              icon: "fa-solid fa-sliders",
+              text: "Provider Setup",
+              href: "provider-setup.js?ts=" + Date.now()
+            })
+          }
+
+          return items
         }
         return [{
           default: true,
           icon: "fa-solid fa-terminal",
           text: "Terminal",
           href: "start.js"
+        }, {
+          icon: "fa-solid fa-sliders",
+          text: "Provider Setup",
+          href: "provider-setup.js?ts=" + Date.now()
+        }]
+      } else if (running.providerSetup) {
+        let providerLocal = info.local("provider-setup.js")
+        if (providerLocal && providerLocal.url) {
+          return [{
+            default: true,
+            icon: "fa-solid fa-sliders",
+            text: "Open Provider Setup",
+            href: providerLocal.url
+          }, {
+            icon: "fa-solid fa-cloud",
+            text: "OpenRouter Preset",
+            href: providerLocal.url + "?provider=openrouter"
+          }, {
+            icon: "fa-solid fa-terminal",
+            text: "Provider Setup Terminal",
+            href: "provider-setup.js"
+          }]
+        }
+        return [{
+          default: true,
+          icon: "fa-solid fa-terminal",
+          text: "Provider Setup Terminal",
+          href: "provider-setup.js"
         }]
       } else if (running.update) {
         return [{
@@ -69,6 +120,10 @@ module.exports = {
         icon: "fa-solid fa-plug",
         text: "Update",
         href: "update.js"
+      }, {
+        icon: "fa-solid fa-sliders",
+        text: "Provider Setup",
+        href: "provider-setup.js?ts=" + Date.now()
       }, {
         icon: "fa-solid fa-plug",
         text: "Install",

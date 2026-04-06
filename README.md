@@ -7,7 +7,8 @@ This launcher installs and runs OpenClaw (gateway) and Nerve (web UI) in sequenc
 3. Clone and build Nerve in `app/nerve`.
 4. Start OpenClaw first, then start Nerve.
 5. Auto-detect local model server defaults in this order: LM Studio, then Ollama.
-6. Ensure OpenClaw gateway token is present and generate Nerve `.env` automatically.
+6. Ensure OpenClaw gateway defaults/token are present and generate Nerve `.env` automatically.
+7. Optional: use Provider Setup from the launcher menu to switch providers (including OpenRouter) with a save form.
 
 No interactive onboarding prompts are required during install.
 
@@ -28,6 +29,8 @@ If neither local server is running, config stays empty and users can set provide
 - `update.js`: updates launcher repo, OpenClaw, and Nerve upstream.
 - `reset.js`: removes `app/nerve`.
 - `pinokio.js`: sidebar menu and run-state UI.
+- `provider-setup.js`: launches the provider setup web form from the launcher.
+- `provider-config-server.js`: serves the provider dropdown form and writes `~/.openclaw/openclaw.json` on save.
 
 ## First Run
 
@@ -35,6 +38,22 @@ If neither local server is running, config stays empty and users can set provide
 2. Click **Start**.
 3. Open Nerve from the menu.
 4. Configure model/provider settings from OpenClaw or Nerve settings after startup.
+
+## Provider Setup (Dropdown + Save)
+
+Use the launcher menu entry **Provider Setup** to open a local config page.
+
+The page lets users:
+
+1. Select provider from a dropdown (`OpenRouter`, `LM Studio`, `Ollama`, `OpenAI-compatible`).
+2. Enter or edit model id, base URL, and API key.
+3. Save and optionally set the selection as default.
+
+OpenRouter shortcut:
+
+- Use **Provider Setup (OpenRouter preset)** from the menu to prefill OpenRouter values.
+
+After saving provider config, restart **Start** in Pinokio to apply defaults to active sessions.
 
 ## Programmatic Checks
 
