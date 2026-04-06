@@ -33,8 +33,8 @@ module.exports = {
       params: {
         path: "app/nerve",
         message: [
-          "node ..\\prepare-nerve-env.js",
-          "node ..\\wait-openclaw-ready.js"
+          "node ..\\..\\prepare-nerve-env.js",
+          "node ..\\..\\wait-openclaw-ready.js"
         ],
         on: [
           {

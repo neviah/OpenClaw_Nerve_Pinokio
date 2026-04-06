@@ -102,6 +102,35 @@ function buildModelEntry(modelId) {
   };
 }
 
+function repairKnownProviderShapes(cfg) {
+  if (!cfg || !cfg.models || !cfg.models.providers || typeof cfg.models.providers !== "object") {
+    return false;
+  }
+
+  let changed = false;
+  const providerIds = ["lmstudio", "ollama"];
+
+  for (const providerId of providerIds) {
+    const provider = cfg.models.providers[providerId];
+    if (!provider || typeof provider !== "object") continue;
+
+    if (!Array.isArray(provider.models) || provider.models.length === 0) {
+      let modelId = providerId === "ollama" ? "llama3.2" : "local-model";
+
+      const selected = cfg?.agents?.defaults?.model;
+      if (typeof selected === "string" && selected.startsWith(`${providerId}/`)) {
+        const maybeId = selected.slice(providerId.length + 1).trim();
+        if (maybeId) modelId = maybeId;
+      }
+
+      provider.models = [buildModelEntry(modelId)];
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
 (async () => {
   fs.mkdirSync(openclawDir, { recursive: true });
 
@@ -121,6 +150,11 @@ function buildModelEntry(modelId) {
 
   if (ensureGatewayToken(cfg)) {
     changed = true;
+  }
+
+  if (repairKnownProviderShapes(cfg)) {
+    changed = true;
+    console.log("PROVIDER_SCHEMA_REPAIRED");
   }
 
   if (hasExistingModelConfig(cfg)) {
